@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">电话拨号器</string>
+    <string name="app_title">输入电话号码：</string>
+    <string name="call_button">拨打电话 实体类监听法</string>
+    <string name="call_button_1">拨打电话 匿名内部类监听法</string>
+    <string name="call_button_2">拨打电话 XML组件OnClick属性法</string>
+    <string name="call_button_3">拨打电话 主类接口监听类高聚合方法</string>
+</resources>
