@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">HackReadApp</string>
+    <string name="readPrivate">读取私有文件</string>
+    <string name="writePrivate">写私有文件</string>
+</resources>

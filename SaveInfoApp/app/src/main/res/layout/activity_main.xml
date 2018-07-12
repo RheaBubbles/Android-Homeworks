@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/username"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/etUser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:textSize="20sp"
+        tools:ignore="LabelFor" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/pass"
+        android:textSize="20sp" />
+
+    <EditText
+        android:id="@+id/etPass"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberPassword"
+        android:textSize="20sp"
+        tools:ignore="LabelFor" />
+
+    <RadioGroup
+        android:id="@+id/rgMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rb1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/private1"
+            android:textSize="20sp" />
+
+        <RadioButton
+            android:id="@+id/rb2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reae"
+        android:textSize="20sp" />
+
+        <RadioButton
+            android:id="@+id/rb3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/write"
+            android:textSize="20sp" />
+
+        <RadioButton
+            android:id="@+id/rb4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/public1"
+            android:textSize="20sp" />
+    </RadioGroup>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <CheckBox
+            android:id="@+id/cbSave"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/savePass"
+            android:textSize="20sp" />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:onClick="loginClick"
+            android:text="@string/login"
+            android:textSize="20sp"
+            tools:ignore="RelativeOverlap" />
+    </RelativeLayout>
+</LinearLayout>
