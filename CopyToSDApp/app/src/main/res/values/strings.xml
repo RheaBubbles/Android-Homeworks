@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">CopyToSDApp</string>
+    <string name="select_title">选取文件的路径：</string>
+    <string name="sd_title">Sd卡的复制路径：</string>
+    <string name="select_btn">选取文件</string>
+    <string name="copy_btn">开始复制</string>
+    <string name="select_copy_path">选取SD卡路径</string>
+</resources>
