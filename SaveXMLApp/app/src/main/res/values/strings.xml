@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">SaveXMLApp</string>
+    <string name="saveSms">保存SMS</string>
+</resources>

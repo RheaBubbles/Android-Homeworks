@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<infos>
+    <city id="1">
+        <temp>-20'C/-10'C</temp>
+        <weather>多云</weather>
+        <wind>三部分3级</wind>
+        <name>哈尔滨</name>
+        <pm>200</pm>
+    </city>
+
+    <city id="2">
+        <temp>-30'C/-5'C</temp>
+        <weather>大雪</weather>
+        <wind>西北风5级</wind>
+        <name>齐齐哈尔</name>
+        <pm>800</pm>
+    </city>
+
+    <city id="3">
+        <temp>0'C/10'C</temp>
+        <weather>暴雪</weather>
+        <wind>北风32级</wind>
+        <name>牡丹江</name>
+        <pm>200</pm>
+    </city>
+
+</infos>
