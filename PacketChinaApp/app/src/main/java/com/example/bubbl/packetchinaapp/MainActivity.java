@@ -4,10 +4,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -29,17 +31,5 @@ public class MainActivity extends AppCompatActivity {
         listView = findViewById(R.id.province_list);
 
         listView.setAdapter(adapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                ProvinceInfo provinceInfo = (ProvinceInfo) adapter.getItem(i); // 获取当前项的Province实例
-                Intent intent = new Intent();
-                intent.setAction("android.intent.action.VIEW");
-                Uri content_url = Uri.parse(provinceInfo.getIntroURL());
-                intent.setData(content_url);
-                startActivity(intent);
-            }
-        });
     }
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<infos>
+    <province id="1">
+        <name>黑龙江</name>
+        <url>https://www.baidu.com</url>
+    </province>
+    <province id="2">
+        <name>四川</name>
+        <url>https://www.bilibili.com</url>
+    </province>
+    <province id="3">
+        <name>北京</name>
+        <url>https://www.baidu.com</url>
+    </province>
+</infos>

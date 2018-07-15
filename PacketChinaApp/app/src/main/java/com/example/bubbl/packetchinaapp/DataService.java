@@ -21,12 +21,15 @@ public class DataService {
 
         ArrayList<ProvinceInfo> infos = null;
         // read the xml file
-        File file = new File(context.getFilesDir().toString() + "/provinces.xml");
+//        File file = new File(context.getFilesDir().toString() + "/provinces.xml");
+
         // Parse the xml
         XmlPullParser parser = Xml.newPullParser();
         try {
             XmlPullParserFactory fac = XmlPullParserFactory.newInstance();
-            InputStream inputStream = new FileInputStream(file);
+//            InputStream inputStream = new FileInputStream(file);
+            InputStream inputStream = context.getClassLoader()
+                    .getResourceAsStream("assets/provinces.xml");
             parser.setInput(inputStream, "utf-8");
             int type = parser.getEventType();
             ProvinceInfo info = null;

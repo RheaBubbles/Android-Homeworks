@@ -9,6 +9,9 @@
         android:id="@+id/province_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#fff"/>
+        android:background="?android:attr/selectableItemBackground"
+        android:textAlignment="textStart"
+        android:paddingLeft="16sp"
+        android:textAllCaps="false"/>
 
 </LinearLayout>
