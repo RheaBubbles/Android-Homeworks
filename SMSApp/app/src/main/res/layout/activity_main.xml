@@ -36,6 +36,12 @@
         android:layout_height="wrap_content"
         />
 
+    <Button
+        android:onClick="addNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add_number"/>
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,12 +57,12 @@
         android:maxLines="10"
         />
 
-    <Button
-        android:id="@+id/send_button"
-        android:onClick="send"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/send_button"/>
+    <!--<Button-->
+        <!--android:id="@+id/send_button"-->
+        <!--android:onClick="send"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="@string/send_button"/>-->
 
     <Button
         android:id="@+id/send_button_direct"
@@ -64,5 +70,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/send_button_direct"/>
+
+
+
+
 
 </LinearLayout>

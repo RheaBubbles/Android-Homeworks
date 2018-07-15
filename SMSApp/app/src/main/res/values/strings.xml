@@ -3,5 +3,6 @@
     <string name="phone_title">请输入对方号码</string>
     <string name="text_title">请输入短信内容</string>
     <string name="send_button">通过系统短信发送</string>
-    <string name="send_button_direct">通过底层接口发送</string>
+    <string name="send_button_direct">一键发送（调用底层接口）</string>
+    <string name="add_number">添加手机号码</string>
 </resources>
