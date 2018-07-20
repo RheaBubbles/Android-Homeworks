@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ActivityDemo1_Hello</string>
+    <string name="title_activity_receive">ReceiveActivity</string>
+</resources>
