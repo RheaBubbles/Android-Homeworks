@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">云头像集</string>
+    <string name="upload_button">上传头像</string>
+    <string name="debug_button">上传附加信息-debug-test</string>
+    <string name="debug_hint">Debug message.</string>
+    <string name="upload_image_content">Upload</string>
+    <string name="title_activity_setting">设置</string>
+    <string name="server_address_hint">服务器地址</string>
+    <string name="save_button">保存设置</string>
+    <string name="server_port_hint">服务器端口</string>
+    <string name="debug_msg_hint">测试附加信息</string>
+    <string name="image_des">图片显示区域</string>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!--<item-->
+        <!--android:id="@+id/user_p"-->
+        <!--android:title="用户"-->
+        <!--app:showAsAction="never" />-->
+
+    <!--<item-->
+        <!--android:id="@+id/write_p"-->
+        <!--android:title="发布"-->
+    <!--android:icon="@drawable/icon_favo_p"-->
+        <!--app:showAsAction="never" />-->
+
+    <item
+        android:id="@+id/setting"
+        android:title="设置"
+        android:icon="@drawable/ic_setting"
+        app:showAsAction="never"
+        android:onClick="openSetting"/>
+
+</menu>
