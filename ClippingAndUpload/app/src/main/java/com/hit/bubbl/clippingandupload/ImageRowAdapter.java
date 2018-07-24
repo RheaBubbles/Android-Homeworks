@@ -90,9 +90,13 @@ public class ImageRowAdapter extends BaseAdapter {
 
         for(int i = 0;i<images.length;i++) {
             String imageViewId = "image_" + (i + 1);
-            int resID = context.getResources().getIdentifier(imageViewId, "id",
+            String buttonId = "button_" + (i + 1);
+            int resImageViewID = context.getResources().getIdentifier(imageViewId, "id",
                     "com.hit.bubbl.clippingandupload");
-            Button button = view.findViewById(resID);
+            int resButtonID = context.getResources().getIdentifier(buttonId, "id",
+                    "com.hit.bubbl.clippingandupload");
+            ImageView imageView = view.findViewById(resImageViewID);
+            Button button = view.findViewById(resButtonID);
             button.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
@@ -127,11 +131,12 @@ public class ImageRowAdapter extends BaseAdapter {
                             Toast.LENGTH_SHORT).show();
                 }
             });
-            ViewGroup.LayoutParams params = button.getLayoutParams();
+            ViewGroup.LayoutParams params = imageView.getLayoutParams();
             params.height = height;
+            params.width = height;
+            imageView.setLayoutParams(params);
             button.setLayoutParams(params);
-            Drawable drawable = new BitmapDrawable(context.getResources(), images[i]);
-            button.setBackground(drawable);
+            imageView.setImageBitmap(images[i]);
         }
 
         return view;

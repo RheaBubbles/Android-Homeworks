@@ -208,10 +208,10 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
             imageUri = Uri.fromFile(tempFile);
         }
 
-        intent.putExtra("camerasensortype", 2);// 调用前置摄像头
-        intent.putExtra("autofocus", true);// 自动对焦
-        intent.putExtra("fullScreen", false);// 全屏
-        intent.putExtra("showActionIcons", false);
+//        intent.putExtra("camerasensortype", 2);// 调用前置摄像头
+//        intent.putExtra("autofocus", true);// 自动对焦
+//        intent.putExtra("fullScreen", false);// 全屏
+//        intent.putExtra("showActionIcons", false);
         // 指定调用相机拍照后照片的储存路径
         intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
         startActivityForResult(intent, PHOTO_REQUEST_TAKE_PHOTO);
