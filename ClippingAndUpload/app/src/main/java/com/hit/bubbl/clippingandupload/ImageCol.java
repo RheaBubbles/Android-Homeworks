@@ -13,6 +13,10 @@ class ImageCol {
 
     private Bitmap[] images;
 
+    public ImageCol(Bitmap[] images) {
+        super();
+        this.images = images;
+    }
 
     public Bitmap[] getImages() {
         return images;

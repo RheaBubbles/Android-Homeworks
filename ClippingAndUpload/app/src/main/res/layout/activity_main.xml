@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical" android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/root_layout">
 
     <!--<ImageView-->
         <!--android:id="@+id/iv"-->
@@ -12,15 +14,16 @@
         <!--android:src="@drawable/border"-->
         <!--android:contentDescription="@string/upload_image_content" />-->
 
+    <include layout="@layout/no_images"/>
+
     <ListView
         android:id="@+id/image_row_list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
+        android:layout_height="match_parent"
+        android:divider="@null" >
     </ListView>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/btn"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_alignParentBottom="true"
@@ -31,6 +34,7 @@
         android:focusable="true"
         android:src="@drawable/ic_action_name"
         app:fabCustomSize="64sp"
-        app:srcCompat="@color/colorAccent" />
+        app:srcCompat="@color/colorAccent"
+        android:onClick="openDialog"/>
 
 </RelativeLayout>

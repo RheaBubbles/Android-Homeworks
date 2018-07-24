@@ -2,35 +2,49 @@ package com.hit.bubbl.clippingandupload;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
+import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,11 +56,10 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
     final Handler uploadHandler = new Handler(this);
 
-    FloatingActionButton view_btn;
     ListView lsImages;
-    List<ImageCol> imageCols;
     File tempFile;
-
+    String tempFileName;
+    ImageRowAdapter imageRowAdapter;
     private static final int PHOTO_REQUEST_TAKE_PHOTO = 1;
     private static final int PHOTO_REQUEST_GALLERY = 2;
     private static final int PHOTO_REQUEST_CUT = 3;
@@ -62,15 +75,8 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        init();
+        initListView();
         checkPermission();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
     }
 
     public void checkPermission() {
@@ -89,43 +95,93 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         }
     }
 
-    private void init() {
-        final String[] arrayString = { "拍照", "相册" };
-        final String title = "选择上传头像方式";
-        view_btn = findViewById(R.id.btn);
-        view_btn.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                tempFile = new File(Environment.getExternalStorageDirectory(),
-                        getPhotoFileName());
-                AlertDialog.Builder dialog =
-                        new AlertDialog.Builder(MainActivity.this)
-                        .setTitle(title)
-                        .setItems(arrayString, onDialogClick);
-                dialog.show();
-            }
-        });
-
-        lsImages = findViewById(R.id.image_row_list);
-        initialItems();
-        ImageRowAdapter imageRowAdapter = new ImageRowAdapter(this, imageCols);
-        lsImages.setAdapter(imageRowAdapter);
+    private void initListView() {
         // 获取当前的所有图片
+        List<Bitmap> images = LoadAllImages();
 
-        // 生成行对象List
+        if(images.size() != 0) {
+            RelativeLayout empty = findViewById(R.id.empty);
+            empty.setVisibility(View.INVISIBLE);
+            // 生成行对象List
+            lsImages = findViewById(R.id.image_row_list);
 
-        // 初始化Adapter
+            // 初始化Adapter
+            imageRowAdapter = new ImageRowAdapter(this, images,
+                    getAdapterLayoutHeight());
 
-        // 初始化ListView
+            // 初始化ListView
+            lsImages.setAdapter(imageRowAdapter);
+        }
+
     }
 
-    private void initialItems() {
-        imageCols = new ArrayList<>();
-        for(int i=0;i<60;i++) {
-            ImageCol itemInfo = new ImageCol();
-            imageCols.add(itemInfo);
+    private List<Bitmap> LoadAllImages() {
+        List<Bitmap> images = new ArrayList<>();
+        File list = new File(getFilesDir(),"list.txt");
+        if(!list.exists()) {
+            // 创建文件
+            try {
+                list.createNewFile();
+                // 写列表
+                FileOutputStream fos = openFileOutput("list.txt", Context.MODE_APPEND);
+                fos.write(("##").getBytes());
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            // 读取文件名列表
+            try {
+                FileInputStream fis = new FileInputStream(list);
+
+                BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+                String str = br.readLine();
+
+                String[] names = str.split("##");
+
+                for(int i = 0;i < names.length;i++) {
+                    if(names[i].length() != 0) {
+                        images.add(decodeFile(getFilesDir() + "/images/" + names[i]));
+                    }
+                }
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+        return images;
+    }
+
+    public static Bitmap decodeFile(String filePath) throws IOException {
+        Bitmap b = null;
+        int IMAGE_MAX_SIZE = 600;
+
+        File f = new File(filePath);
+        if (f == null) {
+            return null;
+        }
+        //Decode image size
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+
+        FileInputStream fis = new FileInputStream(f);
+        BitmapFactory.decodeStream(fis, null, o);
+        fis.close();
+
+        int scale = 1;
+        if (o.outHeight > IMAGE_MAX_SIZE || o.outWidth > IMAGE_MAX_SIZE) {
+            scale = (int) Math.pow(2, (int) Math.round(Math.log(IMAGE_MAX_SIZE / (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
+        }
+
+        //Decode with inSampleSize
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = scale;
+        fis = new FileInputStream(f);
+        b = BitmapFactory.decodeStream(fis, null, o2);
+        fis.close();
+        return b;
     }
 
     private boolean downloadImages() {
@@ -135,40 +191,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         // 下载失败返回false
         return true;
     }
-
-    @Override
-    public boolean handleMessage(Message msg) {
-        Drawable drawable = new BitmapDrawable(getResources(), (Bitmap) msg.obj);
-//        view_pic.setBackground(drawable);
-        switch (msg.what) {
-            case PHOTO_UPLOAD_SUCCESS:
-                Toast.makeText(this, "头像上传成功",
-                        Toast.LENGTH_SHORT).show();
-                break;
-            case PHOTO_UPLOAD_FAILED:
-                Toast.makeText(this, "头像上传失败，请配置地址和端口",
-                        Toast.LENGTH_SHORT).show();
-                break;
-        }
-        return false;
-    }
-
-    // 对话框
-    DialogInterface.OnClickListener onDialogClick = new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-            switch (which) {
-                case 0:
-                    startCameraPicCut(dialog);// 开启照相
-                    break;
-                case 1:
-                    startImageCapture(dialog);// 开启图库
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
 
     private void startCameraPicCut(DialogInterface dialog) {
         // TODO Auto-generated method stub
@@ -211,6 +233,27 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         return dateFormat.format(date) + ".jpg";
     }
 
+    private void startPhotoZoom(Uri uri, int size) {
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.setDataAndType(uri, "image/*");
+        // crop为true是设置在开启的intent中设置显示的view可以剪裁
+        intent.putExtra("crop", "true");
+
+        // aspectX aspectY 是宽高的比例
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+
+        // outputX,outputY 是剪裁图片的宽高
+        intent.putExtra("outputX", size);
+        intent.putExtra("outputY", size);
+        intent.putExtra("return-data", true);
+
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+
+        startActivityForResult(intent, PHOTO_REQUEST_CUT);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -244,39 +287,17 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
                 break;
             case PHOTO_REQUEST_CUT:
                 if (data != null) {
-                    setPicToView(data);
+                    uploadPic(data);
                 }
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void startPhotoZoom(Uri uri, int size) {
-        Intent intent = new Intent("com.android.camera.action.CROP");
-        intent.setDataAndType(uri, "image/*");
-        // crop为true是设置在开启的intent中设置显示的view可以剪裁
-        intent.putExtra("crop", "true");
-
-        // aspectX aspectY 是宽高的比例
-        intent.putExtra("aspectX", 1);
-        intent.putExtra("aspectY", 1);
-
-        // outputX,outputY 是剪裁图片的宽高
-        intent.putExtra("outputX", size);
-        intent.putExtra("outputY", size);
-        intent.putExtra("return-data", true);
-
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-
-        startActivityForResult(intent, PHOTO_REQUEST_CUT);
-    }
-
-    private void setPicToView(Intent picData) {
+    private void uploadPic(Intent picData) {
         Bundle bundle = picData.getExtras();
         if (bundle != null) {
             final Bitmap photo = bundle.getParcelable("data");
-
             new Thread() {
                 @Override
                 public void run() {
@@ -286,10 +307,9 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
                     parameters.put("msg", Settings.getDebugMsg());
 
                     boolean isUploadSuccess = false;
-
                     try {
                         isUploadSuccess = uploadFile.defaultUploadMethod(
-                                photoData, getPhotoFileName(), parameters);
+                                photoData, tempFileName, parameters);
                     } catch (IOException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -308,5 +328,106 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
     public void openSetting(MenuItem item) {
         Intent intent = new Intent(this, SettingActivity.class);
         startActivity(intent);
+    }
+
+    public void openDialog(View view) {
+        final String[] arrayString = { "拍照", "相册" };
+        final String title = "选择上传头像方式";
+        tempFileName = getPhotoFileName();
+        tempFile = new File(getFilesDir(), tempFileName);
+        AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this)
+                .setTitle(title)
+                .setItems(arrayString, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                startCameraPicCut(dialog);// 开启照相
+                                break;
+                            case 1:
+                                startImageCapture(dialog);// 开启图库
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                });
+        dialog.show();
+    }
+
+    @Override
+    public boolean handleMessage(Message msg) {
+        Drawable drawable = new BitmapDrawable(getResources(), (Bitmap) msg.obj);
+        switch (msg.what) {
+            case PHOTO_UPLOAD_SUCCESS:
+                Toast.makeText(this, "头像上传成功",
+                        Toast.LENGTH_SHORT).show();
+                // Step 1 顺便在本地保存一份文件
+                savePic((Bitmap) msg.obj);
+                // Step 2 刷新ListView
+                if(imageRowAdapter == null) {
+                    initListView();
+                    RelativeLayout empty = findViewById(R.id.empty);
+                    empty.setVisibility(View.INVISIBLE);
+                } else {
+                    imageRowAdapter.add((Bitmap) msg.obj);
+                }
+                break;
+            case PHOTO_UPLOAD_FAILED:
+                Toast.makeText(this, "头像上传失败，请配置地址和端口",
+                        Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return false;
+    }
+
+    public boolean savePic(Bitmap image) {
+        // 先写入文件
+        String path = getFilesDir() +"/images/";
+        File dirFile = new File(path);
+        if(!dirFile.exists()){
+            dirFile.mkdir();
+        }
+        File imageFile = new File(path, tempFileName);
+        try {
+            // 写文件
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(imageFile));
+            image.compress(Bitmap.CompressFormat.JPEG, 80, bos);
+            bos.flush();
+            bos.close();
+
+            // 写列表
+            FileOutputStream fos = openFileOutput("list.txt", Context.MODE_APPEND);
+            fos.write((tempFileName + "##").getBytes());
+            fos.close();
+
+            return true;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    public int getAdapterLayoutHeight() {
+        WindowManager wm = (WindowManager) this.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics dm = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(dm);
+        Log.d("MainActivity", "Width:" + dm.widthPixels);
+        return dm.widthPixels/3;
+    }
+
+    public void checkAllAvatarOnCloud(MenuItem item) {
+        // 准备下载云图片
+        Toast.makeText(this, "Open Cloud", Toast.LENGTH_SHORT).show();
     }
 }
