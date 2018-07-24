@@ -37,7 +37,13 @@
 
         <activity
             android:name=".SettingActivity"
-            android:label="@string/title_activity_setting"></activity>
+            android:label="@string/title_activity_setting" />
+        <activity
+            android:name=".CloudActivity"
+            android:label="@string/title_activity_cloud_activty" />
+        <activity
+            android:name=".ShowImageActivity"
+            android:label="@string/title_activity_show_image"></activity>
     </application>
 
 </manifest>

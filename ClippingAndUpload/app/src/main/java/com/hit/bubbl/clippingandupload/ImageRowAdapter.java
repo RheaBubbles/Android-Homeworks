@@ -32,11 +32,15 @@ public class ImageRowAdapter extends BaseAdapter {
     public List<ImageCol> imageCols;
     private Context context;
     private int height;
+    public static final int USE_FOR_LOCAL = 0;
+    public static final int USE_FOR_CLOUD = 0;
+    private int useFor;
 
-    public ImageRowAdapter(Context context, List<Bitmap> bitmaps, int height) {
+    public ImageRowAdapter(Context context, List<Bitmap> bitmaps, int height, int useFor) {
         super();
         this.context = context;
         this.height = height;
+        this.useFor = useFor;
         imageCols = new ArrayList<>();
         Bitmap[] bm = null;
         for(int i = 0;i < bitmaps.size();i+=3) {
@@ -83,9 +87,13 @@ public class ImageRowAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
         view = view.inflate(context, R.layout.image_row, null);
-
+        final String[] arrayString;
 //        Log.i(TAG, "返回view对象，位置：" + position); //后台查看滚动条目位置
-        final String[] arrayString = { "保存到本地", "删除该图" };
+        if(useFor == USE_FOR_LOCAL) {
+            arrayString = new String[] { "保存到本地", "删除该图" };
+        } else {
+            arrayString = new String[] { "下载该图" };
+        }
         Bitmap[] images =  getItem(position).getImages();
 
         for(int i = 0;i<images.length;i++) {
@@ -97,33 +105,59 @@ public class ImageRowAdapter extends BaseAdapter {
                     "com.hit.bubbl.clippingandupload");
             ImageView imageView = view.findViewById(resImageViewID);
             Button button = view.findViewById(resButtonID);
-            button.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    AlertDialog.Builder dialog = new AlertDialog.Builder(context)
-                            .setItems(arrayString, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    switch (which) {
-                                        case 0:
-                                            // 保存
-                                            Toast.makeText(context, "Save to SD",
-                                                    Toast.LENGTH_SHORT).show();
-                                            break;
-                                        case 1:
-                                            // 删除
-                                            Toast.makeText(context, "Delete!",
-                                                    Toast.LENGTH_SHORT).show();
-                                            break;
-                                        default:
-                                            break;
+            if(useFor == USE_FOR_LOCAL) {
+                button.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        AlertDialog.Builder dialog = new AlertDialog.Builder(context)
+                                .setItems(arrayString, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        switch (which) {
+                                            case 0:
+                                                // 保存
+                                                Toast.makeText(context, "Save to SD",
+                                                        Toast.LENGTH_SHORT).show();
+                                                break;
+                                            case 1:
+                                                // 删除
+                                                Toast.makeText(context, "Delete!",
+                                                        Toast.LENGTH_SHORT).show();
+                                                break;
+                                            default:
+                                                break;
+                                        }
                                     }
-                                }
-                            });
-                    dialog.show();
-                    return false;
-                }
-            });
+                                });
+                        dialog.show();
+                        return false;
+                    }
+                });
+            } else {
+                button.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        AlertDialog.Builder dialog = new AlertDialog.Builder(context)
+                                .setItems(arrayString, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        switch (which) {
+                                            case 0:
+                                                // 下载
+                                                Toast.makeText(context, "Save to Local",
+                                                        Toast.LENGTH_SHORT).show();
+                                                break;
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                });
+                        dialog.show();
+                        return false;
+                    }
+                });
+            }
+
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

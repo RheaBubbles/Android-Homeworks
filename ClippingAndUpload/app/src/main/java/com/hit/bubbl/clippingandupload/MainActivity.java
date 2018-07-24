@@ -2,19 +2,15 @@ package com.hit.bubbl.clippingandupload;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
@@ -31,7 +27,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import android.view.WindowManager;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -107,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
             // 初始化Adapter
             imageRowAdapter = new ImageRowAdapter(this, images,
-                    getAdapterLayoutHeight());
+                    getAdapterLayoutHeight(), ImageRowAdapter.USE_FOR_LOCAL);
 
             // 初始化ListView
             lsImages.setAdapter(imageRowAdapter);
@@ -142,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
                 for(int i = 0;i < names.length;i++) {
                     if(names[i].length() != 0) {
-                        images.add(decodeFile(getFilesDir() + "/images/" + names[i]));
+                        images.add(FilePathTools.decodeFile(getFilesDir() + "/images/" + names[i]));
                     }
                 }
             } catch (FileNotFoundException e) {
@@ -152,44 +147,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
             }
         }
         return images;
-    }
-
-    public static Bitmap decodeFile(String filePath) throws IOException {
-        Bitmap b = null;
-        int IMAGE_MAX_SIZE = 600;
-
-        File f = new File(filePath);
-        if (f == null) {
-            return null;
-        }
-        //Decode image size
-        BitmapFactory.Options o = new BitmapFactory.Options();
-        o.inJustDecodeBounds = true;
-
-        FileInputStream fis = new FileInputStream(f);
-        BitmapFactory.decodeStream(fis, null, o);
-        fis.close();
-
-        int scale = 1;
-        if (o.outHeight > IMAGE_MAX_SIZE || o.outWidth > IMAGE_MAX_SIZE) {
-            scale = (int) Math.pow(2, (int) Math.round(Math.log(IMAGE_MAX_SIZE / (double) Math.max(o.outHeight, o.outWidth)) / Math.log(0.5)));
-        }
-
-        //Decode with inSampleSize
-        BitmapFactory.Options o2 = new BitmapFactory.Options();
-        o2.inSampleSize = scale;
-        fis = new FileInputStream(f);
-        b = BitmapFactory.decodeStream(fis, null, o2);
-        fis.close();
-        return b;
-    }
-
-    private boolean downloadImages() {
-        // 检测文件名列表文件是否存在
-        // 不存在则创建并返回true
-        // 存在则进行下载并返回true
-        // 下载失败返回false
-        return true;
     }
 
     private void startCameraPicCut(DialogInterface dialog) {
@@ -302,13 +259,13 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
                 @Override
                 public void run() {
                     byte[] photoData = GraphicsBitmapUtils.Bitmap2Bytes(photo);
-                    UploadFile uploadFile = new UploadFile(Settings.getIp());
+                    SocketRequest socketRequest = new SocketRequest(Settings.getIp());
                     Map parameters = new HashMap();
                     parameters.put("msg", Settings.getDebugMsg());
 
                     boolean isUploadSuccess = false;
                     try {
-                        isUploadSuccess = uploadFile.defaultUploadMethod(
+                        isUploadSuccess = socketRequest.upload(
                                 photoData, tempFileName, parameters);
                     } catch (IOException e) {
                         // TODO Auto-generated catch block
@@ -429,5 +386,8 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
     public void checkAllAvatarOnCloud(MenuItem item) {
         // 准备下载云图片
         Toast.makeText(this, "Open Cloud", Toast.LENGTH_SHORT).show();
+
+        Intent intent = new Intent(this, CloudActivity.class);
+        startActivity(intent);
     }
 }

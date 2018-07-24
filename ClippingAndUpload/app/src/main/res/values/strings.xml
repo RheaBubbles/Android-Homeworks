@@ -10,4 +10,6 @@
     <string name="server_port_hint">服务器端口</string>
     <string name="debug_msg_hint">测试附加信息</string>
     <string name="image_des">图片显示区域</string>
+    <string name="title_activity_cloud_activty">云端数据</string>
+    <string name="title_activity_show_image">ShowImageActivity</string>
 </resources>
