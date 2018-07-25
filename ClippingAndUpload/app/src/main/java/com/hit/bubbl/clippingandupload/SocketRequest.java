@@ -6,6 +6,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -23,48 +25,48 @@ public class SocketRequest {
 
     public boolean upload(byte[] data, String filename, Map parameters) throws IOException {
 
-//        Socket mapSocket=new Socket(serverIp, 2019);
-//        DataOutputStream mapOut = new DataOutputStream(mapSocket.getOutputStream());
-//        if(parameters!=null){
-//            for (Iterator iter = parameters.keySet().iterator(); iter.hasNext();){
-//                String element = (String) iter.next();
-//                String value=parameters.get(element).toString();
-//                mapOut.writeUTF(value);
-//            }
-//        }else {
-//            mapOut.writeUTF("");
-//        }
-//        mapSocket.close();
-//
-//        Socket filenameSocket;
-//        filenameSocket=new Socket(serverIp, 2018);
-//        // 发送给服务器的数据
-//        DataOutputStream filenameOut = new DataOutputStream(filenameSocket.getOutputStream());
-//        filenameOut.writeUTF(filename);
-//        filenameSocket.close();
-//
-//        Socket socket;  //套接字
-//        FileOutputStream out;   //传送文件
-//        socket = new Socket(serverIp, 2017);
-//        out = (FileOutputStream)socket.getOutputStream();
-//        int start=0;
-//        int end=data.length;
-//        while (start<end){
-//            byte [] newData;
-//            if(start+64<=end){
-//                newData= Arrays.copyOfRange(data, start, start+64);
-//            } else {
-//                newData= Arrays.copyOfRange(data, start, end);
-//            }
-////            newData= Arrays.copyOfRange(data, start, 7);
+        Socket mapSocket=new Socket(serverIp, 2019);
+        DataOutputStream mapOut = new DataOutputStream(mapSocket.getOutputStream());
+        if(parameters!=null){
+            for (Iterator iter = parameters.keySet().iterator(); iter.hasNext();){
+                String element = (String) iter.next();
+                String value=parameters.get(element).toString();
+                mapOut.writeUTF(value);
+            }
+        }else {
+            mapOut.writeUTF("");
+        }
+        mapSocket.close();
+
+        Socket filenameSocket;
+        filenameSocket=new Socket(serverIp, 2018);
+        // 发送给服务器的数据
+        DataOutputStream filenameOut = new DataOutputStream(filenameSocket.getOutputStream());
+        filenameOut.writeUTF(filename);
+        filenameSocket.close();
+
+        Socket socket;  //套接字
+        FileOutputStream out;   //传送文件
+        socket = new Socket(serverIp, 2017);
+        out = (FileOutputStream)socket.getOutputStream();
+        int start=0;
+        int end=data.length;
+        while (start<end){
+            byte [] newData;
+            if(start+64<=end){
+                newData= Arrays.copyOfRange(data, start, start+64);
+            } else {
+                newData= Arrays.copyOfRange(data, start, end);
+            }
+//            newData= Arrays.copyOfRange(data, start, 7);
 //            System.out.println(data.length);
 //            System.out.println(newData.length);
-//            out.write(newData);
-//            start=start+64;
-//        }
-////        out.write(data);
-//        out.close();
-//        socket.close();
+            out.write(newData);
+            start=start+64;
+        }
+//        out.write(data);
+        out.close();
+        socket.close();
 
         return true;
     }
@@ -75,7 +77,7 @@ public class SocketRequest {
         FileInputStream in;     //读取穿送过来的数据文件
 
         //接受前文件的准备
-        target = new File(fileSavePath);
+        target = new File(fileSavePath + filename);
         save = new FileOutputStream(target);
 
         Socket socket=new Socket(serverIp, 2020);
@@ -109,6 +111,5 @@ public class SocketRequest {
             save.close();
         }
         return true;
-
     }
 }

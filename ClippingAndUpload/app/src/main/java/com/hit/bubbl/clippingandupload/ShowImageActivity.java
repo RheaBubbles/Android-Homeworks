@@ -36,7 +36,7 @@ public class ShowImageActivity extends Activity {
         byte [] bis=intent.getByteArrayExtra("bitmap");
         Bitmap bitmap= BitmapFactory.decodeByteArray(bis, 0, bis.length);
         Bitmap backgroundBitmap = zoomImg(bitmap, getLayoutHeight(), getLayoutHeight());
-        backgroundBitmap = GraphicsBitmapUtils.rsBlur(this, backgroundBitmap, 20);
+        backgroundBitmap = GraphicsBitmapUtils.rsBlur(this, backgroundBitmap, 25);
 
         image = findViewById(R.id.image);
         background = findViewById(R.id.backgroud_image);
@@ -44,7 +44,7 @@ public class ShowImageActivity extends Activity {
         image.setImageBitmap(bitmap);
         background.setImageBitmap(backgroundBitmap);
 
-        GraphicsBitmapUtils.changeLight(background, -100);
+        GraphicsBitmapUtils.changeLight(background, -80);
     }
 
     public int getLayoutHeight() {

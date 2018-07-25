@@ -7,7 +7,7 @@ package com.hit.bubbl.clippingandupload;
  */
 public class Settings {
 
-    private static String ip = "192.168.1.0", port = "8080", debugMsg = "";
+    private static String ip = "192.168.199.189", port = "8080", debugMsg = "";
 
     public static String getIp() {
         return ip;

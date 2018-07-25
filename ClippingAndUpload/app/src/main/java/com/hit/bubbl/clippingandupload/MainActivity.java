@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -55,6 +56,9 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
     File tempFile;
     String tempFileName;
     ImageRowAdapter imageRowAdapter;
+
+    FloatingActionButton addButton;
+
     private static final int PHOTO_REQUEST_TAKE_PHOTO = 1;
     private static final int PHOTO_REQUEST_GALLERY = 2;
     private static final int PHOTO_REQUEST_CUT = 3;
@@ -70,8 +74,15 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        addButton = findViewById(R.id.add);
         initListView();
         checkPermission();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initListView();
     }
 
     public void checkPermission() {
@@ -257,6 +268,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         Bundle bundle = picData.getExtras();
         if (bundle != null) {
             final Bitmap photo = bundle.getParcelable("data");
+            addButton.hide();
             new Thread() {
                 @Override
                 public void run() {
@@ -267,6 +279,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
                     boolean isUploadSuccess = false;
                     try {
+//                        addButton.setClickable(false);
                         isUploadSuccess = socketRequest.upload(
                                 photoData, tempFileName, parameters);
                     } catch (IOException e) {
@@ -316,7 +329,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
     @Override
     public boolean handleMessage(Message msg) {
-        Drawable drawable = new BitmapDrawable(getResources(), (Bitmap) msg.obj);
         switch (msg.what) {
             case PHOTO_UPLOAD_SUCCESS:
                 Toast.makeText(this, "头像上传成功",
@@ -338,6 +350,8 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
                         Toast.LENGTH_SHORT).show();
                 break;
         }
+//        addButton.setClickable(true);
+        addButton.show();
         return false;
     }
 
@@ -351,6 +365,9 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         File imageFile = new File(path, fileName);
         try {
             // 写文件
+            if(!imageFile.exists()) {
+                imageFile.createNewFile();
+            }
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(imageFile));
             image.compress(Bitmap.CompressFormat.JPEG, 80, bos);
             bos.flush();

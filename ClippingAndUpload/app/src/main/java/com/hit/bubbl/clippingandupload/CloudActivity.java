@@ -4,6 +4,9 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.app.Activity;
+import android.os.Handler;
+import android.os.Message;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -35,13 +38,43 @@ public class CloudActivity extends AppCompatActivity {
     private ListView lsImages;
     private ImageRowAdapter imageRowAdapter;
 
+    private FloatingActionButton download;
+
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Bundle data = msg.getData();
+            String val = data.getString("value");
+            Log.i("CloudActivity","请求结果:" + val);
+            initialListView();
+            download.show();
+        }
+    };
+
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            // TODO: http request.
+            images = downloadImages();
+            Message msg = new Message();
+            Bundle data = new Bundle();
+            data.putString("value", "请求结果");
+            msg.setData(data);
+            handler.sendMessage(msg);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cloud_activty);
+        download = findViewById(R.id.download);
+        download.hide();
+        new Thread(runnable).start();
+    }
 
-        // 从云端进行下载,然后保存到Cache目录
-        images = downloadImages();
+    public void initialListView() {
 
         RelativeLayout emptyCloud = findViewById(R.id.empty_cloud);
         RelativeLayout downloading = findViewById(R.id.downloading);
@@ -74,9 +107,11 @@ public class CloudActivity extends AppCompatActivity {
             if(list.exists()) {
                 list.delete();
             }
-            if(!socketRequest.download(getCacheDir().toString(),"list.txt")) {
+
+            if(socketRequest.download(getCacheDir()+"/","list.txt")) {
                 // 服务器文件列表获取成功
-                Toast.makeText(this, "连接服务器成功", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "连接服务器成功", Toast.LENGTH_SHORT).show();
+                Log.d("Cloud", "连接服务器成功");
                 // 清空缓存文件
                 File cache = new File(getCacheDir() + "/images");
                 if(cache.isDirectory()) {
@@ -91,12 +126,14 @@ public class CloudActivity extends AppCompatActivity {
             } else {
                 // 服务器文件列表获取失败
                 // 提示网络问题
-                Toast.makeText(this, "连接服务器失败，请确认设置", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, "连接服务器失败，请确认设置", Toast.LENGTH_SHORT).show();
+                Log.d("Cloud", "连接服务器失败，请确认设置");
                 return images;
             }
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(this, "出现文件IO错误", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(this, "出现文件IO错误", Toast.LENGTH_SHORT).show();
+            Log.d("Cloud", "出现文件IO错误");
             return images;
         }
 
@@ -105,6 +142,7 @@ public class CloudActivity extends AppCompatActivity {
         if(!list.exists()) {
             // 服务器文件列表获取失败或者文件出错
             Toast.makeText(this, "初始化列表失败，请重试", Toast.LENGTH_SHORT).show();
+            Log.d("Cloud", "初始化列表失败，请重试");
         } else {
             try {
                 FileInputStream fis = new FileInputStream(list);
