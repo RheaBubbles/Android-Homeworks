@@ -118,7 +118,6 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
             // 初始化ListView
             lsImages.setAdapter(imageRowAdapter);
         }
-
     }
 
     private List<ImageFile> LoadAllImages() {

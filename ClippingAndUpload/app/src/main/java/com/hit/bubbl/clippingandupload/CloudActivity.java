@@ -48,7 +48,6 @@ public class CloudActivity extends AppCompatActivity {
             String val = data.getString("value");
             Log.i("CloudActivity","请求结果:" + val);
             initialListView();
-            download.show();
         }
     };
 
@@ -75,7 +74,6 @@ public class CloudActivity extends AppCompatActivity {
     }
 
     public void initialListView() {
-
         RelativeLayout emptyCloud = findViewById(R.id.empty_cloud);
         RelativeLayout downloading = findViewById(R.id.downloading);
         downloading.setVisibility(View.INVISIBLE);
@@ -92,6 +90,7 @@ public class CloudActivity extends AppCompatActivity {
 
             // 初始化ListView
             lsImages.setAdapter(imageRowAdapter);
+            download.show();
         } else {
             emptyCloud.setVisibility(ViewGroup.VISIBLE);
         }

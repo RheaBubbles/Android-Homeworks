@@ -35,6 +35,7 @@ public class ImageRowAdapter extends BaseAdapter {
     public List<ImageCol> imageCols;
     private Context context;
     private int height;
+    private List<ImageFile> imageFiles;
     public static final int USE_FOR_DEFAULT = 0;
     public static final int USE_FOR_LOCAL = 1;
     public static final int USE_FOR_CLOUD = 2;
@@ -47,12 +48,38 @@ public class ImageRowAdapter extends BaseAdapter {
         this.height = height;
         this.useFor = useFor;
         imageCols = new ArrayList<>();
+        this.imageFiles = imageFiles;
         ImageFile[] images = null;
         for(int i = 0;i < imageFiles.size();i+=3) {
             if(i + 2 < imageFiles.size()) {
                 // 还足够多图片填满一行
                 images = new ImageFile[] {
                     imageFiles.get(i), imageFiles.get(i+1), imageFiles.get(i+2)
+                };
+            } else {
+                // 不够一行时，只加载部分ImageView
+                switch (imageFiles.size() - i){
+                    case 1:
+                        images = new ImageFile[] { imageFiles.get(i) };
+                        break;
+                    case 2:
+                        images = new ImageFile[] {
+                                imageFiles.get(i), imageFiles.get(i+1)
+                        };
+                        break;
+                }
+            }
+            ImageCol imageCol = new ImageCol(images);
+            imageCols.add(imageCol);
+        }
+    }
+
+    public void assignImageCols() {
+        for(int i = 0;i < imageFiles.size();i+=3) {
+            if(i + 2 < imageFiles.size()) {
+                // 还足够多图片填满一行
+                images = new ImageFile[] {
+                        imageFiles.get(i), imageFiles.get(i+1), imageFiles.get(i+2)
                 };
             } else {
                 // 不够一行时，只加载部分ImageView
@@ -111,6 +138,7 @@ public class ImageRowAdapter extends BaseAdapter {
             ImageView imageView = view.findViewById(resImageViewID);
             Button button = view.findViewById(resButtonID);
             if(useFor == USE_FOR_LOCAL) {
+                final int index  = i;
                 button.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View view) {
@@ -128,6 +156,13 @@ public class ImageRowAdapter extends BaseAdapter {
                                                 // 删除
                                                 Toast.makeText(context, "Delete!",
                                                         Toast.LENGTH_SHORT).show();
+                                                ImageFile imageFile = images[index];
+                                                String fileName = imageFile.name;
+                                                File file = new File(context.getFilesDir()+"/images", fileName);
+                                                if(file.exists()) {
+                                                    file.delete();
+                                                }
+
                                                 break;
                                             default:
                                                 break;
@@ -138,7 +173,6 @@ public class ImageRowAdapter extends BaseAdapter {
                         return false;
                     }
                 });
-                final int index  = i;
                 button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
