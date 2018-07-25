@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
     private void initListView() {
         // 获取当前的所有图片
-        List<Bitmap> images = LoadAllImages();
+        List<ImageFile> images = LoadAllImages();
 
         if(images.size() != 0) {
             RelativeLayout empty = findViewById(R.id.empty);
@@ -110,8 +110,8 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
     }
 
-    private List<Bitmap> LoadAllImages() {
-        List<Bitmap> images = new ArrayList<>();
+    private List<ImageFile> LoadAllImages() {
+        List<ImageFile> images = new ArrayList<>();
         File list = new File(getFilesDir(),"list.txt");
         if(!list.exists()) {
             // 创建文件
@@ -137,7 +137,9 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
                 for(int i = 0;i < names.length;i++) {
                     if(names[i].length() != 0) {
-                        images.add(FilePathTools.decodeFile(getFilesDir() + "/images/" + names[i]));
+                        Bitmap bitmap = FilePathTools.decodeFile(getFilesDir() + "/images/" + names[i]);
+                        ImageFile image = new ImageFile(names[i], bitmap);
+                        images.add(image);
                     }
                 }
             } catch (FileNotFoundException e) {
@@ -320,14 +322,15 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
                 Toast.makeText(this, "头像上传成功",
                         Toast.LENGTH_SHORT).show();
                 // Step 1 顺便在本地保存一份文件
-                savePic((Bitmap) msg.obj);
+                savePic((Bitmap) msg.obj, tempFileName);
                 // Step 2 刷新ListView
                 if(imageRowAdapter == null) {
                     initListView();
                     RelativeLayout empty = findViewById(R.id.empty);
                     empty.setVisibility(View.INVISIBLE);
                 } else {
-                    imageRowAdapter.add((Bitmap) msg.obj);
+                    ImageFile imageFile = new ImageFile(tempFileName, (Bitmap) msg.obj);
+                    imageRowAdapter.add(imageFile);
                 }
                 break;
             case PHOTO_UPLOAD_FAILED:
@@ -338,14 +341,14 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
         return false;
     }
 
-    public boolean savePic(Bitmap image) {
+    public boolean savePic(Bitmap image, String fileName) {
         // 先写入文件
         String path = getFilesDir() +"/images/";
         File dirFile = new File(path);
         if(!dirFile.exists()){
             dirFile.mkdir();
         }
-        File imageFile = new File(path, tempFileName);
+        File imageFile = new File(path, fileName);
         try {
             // 写文件
             BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(imageFile));
@@ -355,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
 
             // 写列表
             FileOutputStream fos = openFileOutput("list.txt", Context.MODE_APPEND);
-            fos.write((tempFileName + "##").getBytes());
+            fos.write((fileName + "##").getBytes());
             fos.close();
 
             return true;

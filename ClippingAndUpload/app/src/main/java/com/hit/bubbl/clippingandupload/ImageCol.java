@@ -11,18 +11,18 @@ import java.util.List;
  */
 class ImageCol {
 
-    private Bitmap[] images;
+    private ImageFile[] images;
 
-    public ImageCol(Bitmap[] images) {
+    public ImageCol(ImageFile[] images) {
         super();
         this.images = images;
     }
 
-    public Bitmap[] getImages() {
+    public ImageFile[] getImages() {
         return images;
     }
 
-    public void setImages(Bitmap[] images) {
+    public void setImages(ImageFile[] images) {
         this.images = images;
     }
 }

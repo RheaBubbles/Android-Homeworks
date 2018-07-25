@@ -3,11 +3,13 @@ package com.hit.bubbl.clippingandupload;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.Image;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,37 +35,39 @@ public class ImageRowAdapter extends BaseAdapter {
     public List<ImageCol> imageCols;
     private Context context;
     private int height;
-    public static final int USE_FOR_LOCAL = 0;
-    public static final int USE_FOR_CLOUD = 0;
+    public static final int USE_FOR_DEFAULT = 0;
+    public static final int USE_FOR_LOCAL = 1;
+    public static final int USE_FOR_CLOUD = 2;
+
     private int useFor;
 
-    public ImageRowAdapter(Context context, List<Bitmap> bitmaps, int height, int useFor) {
+    public ImageRowAdapter(Context context, List<ImageFile> imageFiles, int height, int useFor) {
         super();
         this.context = context;
         this.height = height;
         this.useFor = useFor;
         imageCols = new ArrayList<>();
-        Bitmap[] bm = null;
-        for(int i = 0;i < bitmaps.size();i+=3) {
-            if(i + 2 < bitmaps.size()) {
+        ImageFile[] images = null;
+        for(int i = 0;i < imageFiles.size();i+=3) {
+            if(i + 2 < imageFiles.size()) {
                 // 还足够多图片填满一行
-                bm = new Bitmap[] {
-                    bitmaps.get(i), bitmaps.get(i+1), bitmaps.get(i+2)
+                images = new ImageFile[] {
+                    imageFiles.get(i), imageFiles.get(i+1), imageFiles.get(i+2)
                 };
             } else {
                 // 不够一行时，只加载部分ImageView
-                switch (bitmaps.size() - i){
+                switch (imageFiles.size() - i){
                     case 1:
-                        bm = new Bitmap[] { bitmaps.get(i) };
+                        images = new ImageFile[] { imageFiles.get(i) };
                         break;
                     case 2:
-                        bm = new Bitmap[] {
-                                bitmaps.get(i), bitmaps.get(i+1)
+                        images = new ImageFile[] {
+                                imageFiles.get(i), imageFiles.get(i+1)
                         };
                         break;
                 }
             }
-            ImageCol imageCol = new ImageCol(bm);
+            ImageCol imageCol = new ImageCol(images);
             imageCols.add(imageCol);
         }
     }
@@ -94,7 +99,7 @@ public class ImageRowAdapter extends BaseAdapter {
         } else {
             arrayString = new String[] { "下载该图" };
         }
-        Bitmap[] images =  getItem(position).getImages();
+        final ImageFile[] images =  getItem(position).getImages();
 
         for(int i = 0;i<images.length;i++) {
             String imageViewId = "image_" + (i + 1);
@@ -133,6 +138,25 @@ public class ImageRowAdapter extends BaseAdapter {
                         return false;
                     }
                 });
+                final int index  = i;
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(context, "Show Image",
+                                Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(context, ShowImageActivity.class);
+                        intent.putExtra("userFor", USE_FOR_LOCAL);
+                        intent.putExtra("fileName", images[index].name);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        images[index].bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        byte [] bitmapByte =baos.toByteArray();
+                        intent.putExtra("bitmap", bitmapByte);
+//                        Bundle bundle = new Bundle();
+//                        bundle.putParcelable("bitmap", images[index].bitmap);
+//                        intent.putExtra("bundle", bundle);
+                        context.startActivity(intent);
+                    }
+                });
             } else {
                 button.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
@@ -156,59 +180,70 @@ public class ImageRowAdapter extends BaseAdapter {
                         return false;
                     }
                 });
+                final int index  = i;
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(context, "Show Image",
+                                Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(context, ShowImageActivity.class);
+                        intent.putExtra("userFor", USE_FOR_CLOUD);
+                        intent.putExtra("fileName", images[index].name);
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        images[index].bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                        byte [] bitmapByte =baos.toByteArray();
+                        intent.putExtra("bitmap", bitmapByte);
+//                        Bundle bundle = new Bundle();
+//                        bundle.putParcelable("bitmap", images[index].bitmap);
+//                        intent.putExtra("bundle", bundle);
+                        context.startActivity(intent);
+                    }
+                });
             }
-
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Toast.makeText(context, "Show Image",
-                            Toast.LENGTH_SHORT).show();
-                }
-            });
             ViewGroup.LayoutParams params = imageView.getLayoutParams();
             params.height = height;
             params.width = height;
             imageView.setLayoutParams(params);
             button.setLayoutParams(params);
-            imageView.setImageBitmap(images[i]);
+            imageView.setImageBitmap(images[i].bitmap);
         }
 
         return view;
     }
 
-    public void add(Bitmap image) {
+    public void add(ImageFile image) {
         ImageCol imageCol;
         if(imageCols.size() == 0) {
-            imageCol = new ImageCol(new Bitmap[0]);
+            imageCol = new ImageCol(new ImageFile[0]);
             imageCols.add(imageCol);
         } else {
             imageCol = imageCols.get(imageCols.size() - 1);
 
-            Bitmap[] bitmaps = imageCol.getImages();
+            ImageFile[] imageFiles = imageCol.getImages();
 
-            if(bitmaps.length == 3) {
+            if(imageFiles.length == 3) {
                 // 新建一个
-                imageCol = new ImageCol(new Bitmap[] {image});
+                imageCol = new ImageCol(new ImageFile[] {image});
                 imageCols.add(imageCol);
             } else {
-                switch (bitmaps.length) {
+                switch (imageFiles.length) {
                     case 0:
-                        bitmaps = new Bitmap[] {
+                        imageFiles = new ImageFile[] {
                                 image
                         };
                         break;
                     case 1:
-                        bitmaps = new Bitmap[] {
-                                bitmaps[0], image
+                        imageFiles = new ImageFile[] {
+                                imageFiles[0], image
                         };
                         break;
                     case 2:
-                        bitmaps = new Bitmap[] {
-                                bitmaps[0], bitmaps[1], image
+                        imageFiles = new ImageFile[] {
+                                imageFiles[0], imageFiles[1], image
                         };
                         break;
                 }
-                imageCol.setImages(bitmaps);
+                imageCol.setImages(imageFiles);
             }
         }
 

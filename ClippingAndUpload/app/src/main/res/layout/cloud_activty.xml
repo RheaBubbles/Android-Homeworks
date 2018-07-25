@@ -16,6 +16,8 @@
 
     <include layout="@layout/no_images_cloud"/>
 
+    <include layout="@layout/downloading"/>
+
     <ListView
         android:id="@+id/image_row_list"
         android:layout_width="match_parent"
@@ -30,11 +32,11 @@
         android:layout_alignParentEnd="true"
         android:layout_marginBottom="55dp"
         android:layout_marginEnd="47dp"
-        android:clickable="true"
+        android:clickable="false"
         android:focusable="true"
-        android:src="@drawable/ic_action_name"
+        android:src="@drawable/ic_download_all"
         app:fabCustomSize="64sp"
         app:srcCompat="@color/colorAccent"
-        android:onClick="openDialog"/>
+        android:onClick="saveAll"/>
 
 </RelativeLayout>
