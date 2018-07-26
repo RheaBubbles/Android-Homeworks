@@ -19,9 +19,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -49,32 +57,12 @@ public class ImageRowAdapter extends BaseAdapter {
         this.useFor = useFor;
         imageCols = new ArrayList<>();
         this.imageFiles = imageFiles;
-        ImageFile[] images = null;
-        for(int i = 0;i < imageFiles.size();i+=3) {
-            if(i + 2 < imageFiles.size()) {
-                // 还足够多图片填满一行
-                images = new ImageFile[] {
-                    imageFiles.get(i), imageFiles.get(i+1), imageFiles.get(i+2)
-                };
-            } else {
-                // 不够一行时，只加载部分ImageView
-                switch (imageFiles.size() - i){
-                    case 1:
-                        images = new ImageFile[] { imageFiles.get(i) };
-                        break;
-                    case 2:
-                        images = new ImageFile[] {
-                                imageFiles.get(i), imageFiles.get(i+1)
-                        };
-                        break;
-                }
-            }
-            ImageCol imageCol = new ImageCol(images);
-            imageCols.add(imageCol);
-        }
+        assignImageCols();
     }
 
-    public void assignImageCols() {
+    private void assignImageCols() {
+        ImageFile[] images = null;
+        imageCols.clear();
         for(int i = 0;i < imageFiles.size();i+=3) {
             if(i + 2 < imageFiles.size()) {
                 // 还足够多图片填满一行
@@ -122,7 +110,7 @@ public class ImageRowAdapter extends BaseAdapter {
         final String[] arrayString;
 //        Log.i(TAG, "返回view对象，位置：" + position); //后台查看滚动条目位置
         if(useFor == USE_FOR_LOCAL) {
-            arrayString = new String[] { "保存到本地", "删除该图" };
+            arrayString = new String[] { "删除该图" };
         } else {
             arrayString = new String[] { "下载该图" };
         }
@@ -148,11 +136,6 @@ public class ImageRowAdapter extends BaseAdapter {
                                     public void onClick(DialogInterface dialog, int which) {
                                         switch (which) {
                                             case 0:
-                                                // 保存
-                                                Toast.makeText(context, "Save to SD",
-                                                        Toast.LENGTH_SHORT).show();
-                                                break;
-                                            case 1:
                                                 // 删除
                                                 Toast.makeText(context, "Delete!",
                                                         Toast.LENGTH_SHORT).show();
@@ -161,10 +144,41 @@ public class ImageRowAdapter extends BaseAdapter {
                                                 File file = new File(context.getFilesDir()+"/images", fileName);
                                                 if(file.exists()) {
                                                     file.delete();
+                                                    // 这里删除还要注意重写list.txt的问题
+                                                    File localList = new File(context.getFilesDir(), "list.txt");
+                                                    String[] localNames = null;
+                                                    if (localList.exists()) {
+                                                        FileInputStream fis = null;
+                                                        try {
+                                                            fis = new FileInputStream(localList);
+                                                            BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+                                                            String str = br.readLine();
+                                                            localNames = str.split("##");
+                                                        } catch (FileNotFoundException e) {
+                                                            e.printStackTrace();
+                                                        } catch (IOException e) {
+                                                            e.printStackTrace();
+                                                        }
+                                                    }
+                                                    List<String> localNameList = Arrays.asList(localNames);
+                                                    FileOutputStream fos = null;
+                                                    try {
+                                                        fos = context.openFileOutput("list.txt", Context.MODE_PRIVATE);
+                                                        for(int i=0;i<localNameList.size();i++) {
+                                                            if(!localNameList.get(i).equals(fileName)) {
+                                                                fos.write((localNameList.get(i) + "##").getBytes());
+                                                            }
+                                                        }
+                                                        fos.close();
+                                                    } catch (FileNotFoundException e) {
+                                                        e.printStackTrace();
+                                                    } catch (IOException e) {
+                                                        e.printStackTrace();
+                                                    }
                                                 }
-
-                                                break;
-                                            default:
+                                                imageFiles.remove(imageFile);
+                                                assignImageCols();
+                                                notifyDataSetChanged();
                                                 break;
                                         }
                                     }
@@ -280,7 +294,6 @@ public class ImageRowAdapter extends BaseAdapter {
                 imageCol.setImages(imageFiles);
             }
         }
-
         notifyDataSetChanged();
     }
 }

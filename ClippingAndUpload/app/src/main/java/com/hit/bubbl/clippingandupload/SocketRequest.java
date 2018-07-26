@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -46,9 +48,9 @@ public class SocketRequest {
         filenameSocket.close();
 
         Socket socket;  //套接字
-        FileOutputStream out;   //传送文件
+        OutputStream out;   //传送文件
         socket = new Socket(serverIp, 2017);
-        out = (FileOutputStream)socket.getOutputStream();
+        out = socket.getOutputStream();
         int start=0;
         int end=data.length;
         while (start<end){
@@ -74,7 +76,7 @@ public class SocketRequest {
     public boolean download(String fileSavePath, String filename) throws IOException{
         File target;    //接收到的文件保存的位置
         FileOutputStream save;  //将接收到的文件写入电脑
-        FileInputStream in;     //读取穿送过来的数据文件
+        InputStream in;     //读取穿送过来的数据文件
 
         //接受前文件的准备
         target = new File(fileSavePath + filename);
@@ -88,7 +90,7 @@ public class SocketRequest {
 //        mapout.close();
 
         //接受文件流
-        in = (FileInputStream) socket.getInputStream();
+        in = socket.getInputStream();
         try {
 
             //接收数据

@@ -74,6 +74,23 @@ public class MainActivity extends AppCompatActivity implements Handler.Callback 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //新线程启动新Activity 欢迎界面
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                //耗时任务，比如加载网络数据
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //跳转至 MainActivity
+                        Intent intent = new Intent(MainActivity.this, WelcomeActivity.class);
+                        startActivity(intent);
+                    }
+                });
+            }
+        }).start();
+
         addButton = findViewById(R.id.add);
         initListView();
         checkPermission();

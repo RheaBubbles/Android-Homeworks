@@ -13,4 +13,5 @@
     <string name="title_activity_cloud_activty">云端数据</string>
     <string name="title_activity_show_image">ShowImageActivity</string>
     <string name="image_background">ImageBackground</string>
+    <string name="title_activity_welcome">WelcomeActivity</string>
 </resources>
